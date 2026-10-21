@@ -15,6 +15,8 @@ const PAGE = 250;
 const WORKERS = 3;
 const DEADLINE = Date.now() + 35 * 60 * 1000;
 const FIELDS = 'id,name,number,rarity,images,cardmarket';
+// Nombre de cartes visé : on prend les séries les plus récentes jusqu'à l'atteindre. 0 = toutes les cartes.
+const CARD_LIMIT = Number(process.env.CARD_LIMIT ?? 1000);
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const log = (...a) => console.log(...a);
@@ -70,6 +72,36 @@ async function fetchSets() {
   }
   sets.sort((a, b) => (a.releaseDate || '').localeCompare(b.releaseDate || '') || a.id.localeCompare(b.id));
   return sets;
+}
+
+async function fetchRecentSets(sets) {
+  const chosen = [];
+  let planned = 0;
+  for (const s of [...sets].reverse()) {
+    if (planned >= CARD_LIMIT) break;
+    if (!s.total) continue;
+    chosen.push(s);
+    planned += s.total;
+  }
+  log(`Limite de ${CARD_LIMIT} cartes : ${chosen.length} séries les plus récentes (${planned} cartes prévues)`);
+  const byId = new Map();
+  const queue = [...chosen];
+  async function worker() {
+    while (queue.length) {
+      const s = queue.shift();
+      try {
+        for (let page = 1; ; page++) {
+          const r = await getJSON(cardsUrl(page, PAGE, `set.id:${s.id}`), 4);
+          for (const c of r.data) byId.set(c.id, c);
+          if (page * PAGE >= r.totalCount) break;
+        }
+      } catch (e) {
+        log(`  série ${s.id} : échec (${e.message})`);
+      }
+    }
+  }
+  await Promise.all(Array.from({ length: WORKERS }, worker));
+  return { byId, total: planned, failed: [], chosen };
 }
 
 async function fetchAllCards() {
@@ -173,12 +205,18 @@ async function main() {
   const t0 = Date.now();
   log(KEY ? 'Clé API présente' : 'Pas de clé API : débit limité à 30 requêtes par minute');
 
-  const sets = await fetchSets();
-  const setIdx = new Map(sets.map((s, i) => [s.id, i]));
-  log(`${sets.length} séries, de ${sets[0]?.releaseDate} à ${sets.at(-1)?.releaseDate}`);
+  const allSets = await fetchSets();
+  log(`${allSets.length} séries, de ${allSets[0]?.releaseDate} à ${allSets.at(-1)?.releaseDate}`);
 
-  const { byId, total, failed } = await fetchAllCards();
-  const added = await fillMissing(byId, sets);
+  let byId, total, failed, added = 0, sets = allSets;
+  if (CARD_LIMIT > 0) {
+    ({ byId, total, failed, chosen: sets } = await fetchRecentSets(allSets));
+    sets = [...sets].reverse();
+  } else {
+    ({ byId, total, failed } = await fetchAllCards());
+    added = await fillMissing(byId, sets);
+  }
+  const setIdx = new Map(sets.map((s, i) => [s.id, i]));
   log(`${byId.size} cartes récupérées (${added} ajoutées par le complément, ${failed.length} pages perdues)`);
 
   const rarities = [];
@@ -213,7 +251,7 @@ async function main() {
   }
   rows.sort((a, b) => (a[1] - b[1]) || a[0].localeCompare(b[0], 'en', { numeric: true }));
 
-  if (rows.length < 5000) throw new Error(`seulement ${rows.length} cartes exploitables : données jugées incomplètes`);
+  if (rows.length < Math.min(5000, CARD_LIMIT > 0 ? CARD_LIMIT * 0.5 : 5000)) throw new Error(`seulement ${rows.length} cartes exploitables : données jugées incomplètes`);
 
   const mainUpdate = [...updCount.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] || maxUpd;
   const data = {

@@ -574,7 +574,7 @@ function renderInfos() {
     line('c', 'Commune', '×4', s.c.n, s.c.mean),
     line('u', 'Peu commune', '×3', s.u.n, s.u.mean),
     line('rev', 'Reverse', '×1 ou 2', s.rev.n, s.rev.mean),
-    ...['r', 'h', 'ur', 'fa', 'sr', 'sir', 'jp'].map((t) => line(t, TIERS[t].label, oneIn(tierChance(t)), s[t].n, s[t].mean)),
+    ...['r', 'h', 'ur', 'fa', 'sr', 'sir', 'jp'].filter((t) => t !== 'jp' || s[t].n).map((t) => line(t, TIERS[t].label, oneIn(tierChance(t)), s[t].n, s[t].mean)),
   ];
   $('#odds').innerHTML = `<thead>${head}</thead><tbody>${body.join('')}</tbody>`;
   $('#jackpot-expl').textContent = `Chances par booster : ×4 signifie quatre cartes de ce type dans chaque booster.${s.jp.n
@@ -583,7 +583,7 @@ function renderInfos() {
 
   const c = model.counts || {};
   const upd = apiDate(model.pricesUpdated?.main || model.pricesUpdated?.max);
-  $('#data-expl').innerHTML = `<b>${fmtInt.format(model.cards.length)}</b> cartes jouables, de 1999 à aujourd'hui, avec leur vraie photo et leur cote Cardmarket${upd ? ` relevée le <b>${fmtDate.format(upd)}</b>` : ''}.`
+  $('#data-expl').innerHTML = `<b>${fmtInt.format(model.cards.length)}</b> cartes jouables${model.sets.length ? `, des séries ${esc(model.sets[0].name)} à ${esc(model.sets.at(-1).name)}` : ''}, avec leur vraie photo et leur cote Cardmarket${upd ? ` relevée le <b>${fmtDate.format(upd)}</b>` : ''}.`
     + (c.api ? ` Sur ${fmtInt.format(c.api)} cartes répertoriées, ${fmtInt.format(c.noPrice || 0)} n'ont pas de cote et ${fmtInt.format(c.noRarity || 0)} ne sortent pas en booster : elles sont écartées.` : '');
   const stale = upd && Date.now() - upd.getTime() > 45 * 86400000;
   $('#data-fine').textContent = `Cote = médiane de la moyenne sur 30 jours, de la tendance et du prix moyen de vente sur Cardmarket. Photos et cotes : pokemontcg.io.${stale ? ' Ces cotes ont plus d\'un mois : la source ne les a pas actualisées depuis.' : ''} Jeu non officiel, sans lien avec The Pokémon Company ni Cardmarket.`;
@@ -709,7 +709,7 @@ async function boot() {
   const retry = $('#boot-retry');
   try {
     retry.hidden = true;
-    msg.textContent = 'Chargement de plus de 20 000 cartes et de leurs cotes…';
+    msg.textContent = 'Chargement des cartes et de leurs cotes…';
     const res = await fetch('cards.json');
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
