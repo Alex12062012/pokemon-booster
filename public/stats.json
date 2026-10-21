@@ -1,0 +1,182 @@
+{
+  "generatedAt": "2026-10-21T18:20:21.102Z",
+  "pricesUpdated": {
+    "min": "2026/06/24",
+    "max": "2026/07/01",
+    "main": "2026/07/01"
+  },
+  "counts": {
+    "api": 20670,
+    "fetched": 1000,
+    "kept": 942,
+    "noPrice": 14,
+    "noRarity": 44,
+    "anomalies": 0,
+    "lostPages": 0
+  },
+  "tiers": {
+    "c": {
+      "n": 164,
+      "mean": 0.3
+    },
+    "u": {
+      "n": 127,
+      "mean": 4.04
+    },
+    "r": {
+      "n": 124,
+      "mean": 10.8
+    },
+    "h": {
+      "n": 470,
+      "mean": 25.85
+    },
+    "ur": {
+      "n": 36,
+      "mean": 10.32
+    },
+    "fa": {
+      "n": 3,
+      "mean": 8.41
+    },
+    "sr": {
+      "n": 0,
+      "mean": 0
+    },
+    "sir": {
+      "n": 0,
+      "mean": 0
+    },
+    "jp": {
+      "n": 18,
+      "mean": 479.78
+    },
+    "rev": {
+      "n": 387,
+      "mean": 2.54
+    }
+  },
+  "evWithoutJackpot": 33.98,
+  "jackpotEV": 1.92,
+  "simulatedPack": {
+    "mean": 35.73,
+    "p10": 6.89,
+    "median": 21.38,
+    "p90": 74.24,
+    "p99": 192.14,
+    "pVitrine": 0.46313
+  },
+  "modes": {
+    "reel": {
+      "ratio": 0.7,
+      "price": 48.55,
+      "realReturn": 0.7394,
+      "returnWithoutJackpot": 0.6999,
+      "shareProfitablePacks": 0.2079,
+      "runs": 2000,
+      "maxPacks": 200,
+      "pBrokeBy20": 0.975,
+      "pDoubled": 0.0875,
+      "medianPacks": 3
+    },
+    "equilibre": {
+      "ratio": 1.05,
+      "price": 32.35,
+      "realReturn": 1.1097,
+      "returnWithoutJackpot": 1.0504,
+      "shareProfitablePacks": 0.3348,
+      "runs": 2000,
+      "maxPacks": 200,
+      "pBrokeBy20": 0.537,
+      "pDoubled": 0.4355,
+      "medianPacks": 17
+    },
+    "genereux": {
+      "ratio": 1.3,
+      "price": 26.15,
+      "realReturn": 1.3728,
+      "returnWithoutJackpot": 1.2993999999999999,
+      "shareProfitablePacks": 0.4117,
+      "runs": 2000,
+      "maxPacks": 200,
+      "pBrokeBy20": 0.1475,
+      "pDoubled": 0.823,
+      "medianPacks": 200
+    }
+  },
+  "top": [
+    {
+      "id": "base1-4",
+      "name": "Charizard",
+      "rarity": "Rare Holo",
+      "price": 2427.79
+    },
+    {
+      "id": "base5-5",
+      "name": "Dark Dragonite",
+      "rarity": "Rare Holo",
+      "price": 631.5
+    },
+    {
+      "id": "gym2-2",
+      "name": "Blaine's Charizard",
+      "rarity": "Rare Holo",
+      "price": 630.65
+    },
+    {
+      "id": "pop5-3",
+      "name": "Mew δ",
+      "rarity": "Rare",
+      "price": 524.98
+    },
+    {
+      "id": "ecard3-H1",
+      "name": "Alakazam",
+      "rarity": "Rare Holo",
+      "price": 522.62
+    },
+    {
+      "id": "base2-1",
+      "name": "Clefable",
+      "rarity": "Rare Holo",
+      "price": 471.57
+    },
+    {
+      "id": "base5-4",
+      "name": "Dark Charizard",
+      "rarity": "Rare Holo",
+      "price": 450.85
+    },
+    {
+      "id": "neo4-6",
+      "name": "Dark Gengar",
+      "rarity": "Rare Holo",
+      "price": 403.03
+    },
+    {
+      "id": "ecard2-H11",
+      "name": "Houndoom",
+      "rarity": "Rare Holo",
+      "price": 362.74
+    },
+    {
+      "id": "neo4-4",
+      "name": "Dark Espeon",
+      "rarity": "Rare Holo",
+      "price": 296.95
+    },
+    {
+      "id": "ecard3-H7",
+      "name": "Flareon",
+      "rarity": "Rare Holo",
+      "price": 294.28
+    },
+    {
+      "id": "ecard3-H2",
+      "name": "Arcanine",
+      "rarity": "Rare Holo",
+      "price": 256.23
+    }
+  ],
+  "durationSeconds": 49
+}
