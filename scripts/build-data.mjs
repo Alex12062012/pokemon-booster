@@ -211,6 +211,64 @@ function imgKey(images) {
 
 const eur = (x) => `${x.toFixed(2)} €`;
 
+// Source de secours : TCGdex (cotes Cardmarket incluses), utilisée si pokemontcg.io ne répond pas.
+const TCGDEX = 'https://api.tcgdex.net/v2/en';
+async function tcgdexJSON(url, tries = 4) {
+  let lastErr;
+  for (let a = 1; a <= tries; a++) {
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 30_000);
+    try {
+      const res = await fetch(url, { signal: ctrl.signal });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return await res.json();
+    } catch (e) {
+      lastErr = e;
+      await sleep(1000 * a);
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+  throw lastErr;
+}
+
+async function fetchFromTcgdex(limit) {
+  const list = await tcgdexJSON(`${TCGDEX}/sets`);
+  const sets = [];
+  const cardRefs = [];
+  for (const brief of [...list].reverse()) {
+    if (cardRefs.length >= limit) break;
+    let set;
+    try { set = await tcgdexJSON(`${TCGDEX}/sets/${encodeURIComponent(brief.id)}`); } catch { continue; }
+    if (!set?.cards?.length || set.serie?.id === 'tcgp' || /pocket/i.test(set.serie?.name || '')) continue;
+    sets.push({ id: set.id, name: set.name, series: set.serie?.name || '', releaseDate: (set.releaseDate || '').replaceAll('-', '/'), total: set.cards.length });
+    for (const c of set.cards) cardRefs.push({ id: c.id, set: set.id });
+  }
+  log(`TCGdex : ${sets.length} séries récentes, ${cardRefs.length} cartes`);
+  const out = new Map();
+  const queue = [...cardRefs];
+  async function worker() {
+    while (queue.length) {
+      const ref = queue.shift();
+      try {
+        const c = await tcgdexJSON(`${TCGDEX}/cards/${encodeURIComponent(ref.id)}`);
+        const cm = c.pricing?.cardmarket || {};
+        const img = c.image ? `!${c.image}/low.webp|${c.image}/high.webp` : '';
+        out.set(c.id, {
+          id: c.id, name: c.name, rarity: c.rarity, set: ref.set, img,
+          cardmarket: { updatedAt: (cm.updated || '').slice(0, 10).replaceAll('-', '/'), prices: {
+            avg30: cm.avg30, trendPrice: cm.trend, averageSellPrice: cm.avg, lowPrice: cm.low,
+            reverseHoloAvg30: cm['avg30-holo'], reverseHoloTrend: cm['trend-holo'], reverseHoloSell: cm['avg-holo'],
+          } },
+        });
+      } catch { /* carte ignorée */ }
+    }
+  }
+  await Promise.all(Array.from({ length: 8 }, worker));
+  sets.reverse();
+  return { byId: out, sets };
+}
+
 async function main() {
   const t0 = Date.now();
   // Les données sont enregistrées dans le dépôt : une mise en ligne normale les réutilise
@@ -229,7 +287,7 @@ async function main() {
   const allSets = await fetchSets();
   log(`${allSets.length} séries, de ${allSets[0]?.releaseDate} à ${allSets.at(-1)?.releaseDate}`);
 
-  let byId, total, failed, added = 0, sets = allSets;
+  let byId, total, failed, added = 0, sets = allSets, source = 'api.pokemontcg.io';
   if (CARD_LIMIT > 0) {
     // Simple pagination (la recherche par série de l'API est peu fiable) : les premières pages suffisent.
     byId = new Map();
@@ -239,7 +297,7 @@ async function main() {
     log(`Limite de ${CARD_LIMIT} cartes : ${pages} pages, des séries les plus récentes`);
     for (let p = 1; p <= pages; p++) {
       try {
-        const r = await getJSON(`${cardsUrl(p)}&orderBy=-set.releaseDate`);
+        const r = await getJSON(`${cardsUrl(p)}&orderBy=-set.releaseDate`, 3);
         for (const c of r.data) byId.set(c.id, c);
         total = r.totalCount;
       } catch (e) {
@@ -249,6 +307,12 @@ async function main() {
     }
     const used = new Set([...byId.keys()].map(setOf));
     sets = allSets.filter((s) => used.has(s.id));
+    const priced = [...byId.values()].filter((c) => c.rarity && pricesOf(c.cardmarket)[0] > 0).length;
+    if (priced < CARD_LIMIT * 0.5) {
+      log(`pokemontcg.io n'a fourni que ${priced} cartes cotées : passage à TCGdex`);
+      ({ byId, sets } = await fetchFromTcgdex(CARD_LIMIT));
+      source = 'api.tcgdex.net';
+    }
   } else {
     ({ byId, total, failed } = await fetchAllCards());
     added = await fillMissing(byId, sets);
@@ -283,8 +347,8 @@ async function main() {
     }
     if (!rIdx.has(c.rarity)) { rIdx.set(c.rarity, rarities.length); rarities.push(c.rarity); }
     rarityCount.set(c.rarity, (rarityCount.get(c.rarity) || 0) + 1);
-    const s = setOf(c.id);
-    rows.push([c.id, setIdx.has(s) ? setIdx.get(s) : -1, c.name, rIdx.get(c.rarity), price, rev, imgKey(c.images)]);
+    const s = c.set || setOf(c.id);
+    rows.push([c.id, setIdx.has(s) ? setIdx.get(s) : -1, c.name, rIdx.get(c.rarity), price, rev, c.img || imgKey(c.images)]);
   }
   rows.sort((a, b) => (a[1] - b[1]) || a[0].localeCompare(b[0], 'en', { numeric: true }));
 
@@ -294,7 +358,7 @@ async function main() {
   const data = {
     v: 1,
     generatedAt: new Date().toISOString(),
-    source: 'api.pokemontcg.io',
+    source,
     pricesUpdated: { min: minUpd, max: maxUpd, main: mainUpdate },
     counts: { api: total, fetched: byId.size, kept: rows.length, noPrice, noRarity, anomalies, lostPages: failed.length },
     rarities,

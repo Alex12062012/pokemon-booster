@@ -47,9 +47,14 @@ export function isKnownRarity(rarity) {
 }
 
 // Niveau d'une rareté. Les raretés inconnues (nouvelles séries) sont devinées par mots-clés.
+const RARITY_LOWER = Object.fromEntries(Object.entries(RARITY_TIER).map(([k, v]) => [k.toLowerCase(), v]));
+Object.assign(RARITY_LOWER, { 'holo rare': 'h', 'rare holo': 'h', 'none': null });
+
 export function tierOf(rarity) {
   if (!rarity) return null;
   if (isKnownRarity(rarity)) return RARITY_TIER[rarity];
+  const low = rarity.toLowerCase();
+  if (low in RARITY_LOWER) return RARITY_LOWER[low];
   const r = rarity.toLowerCase();
   if (r.includes('special illustration')) return 'sir';
   if (/hyper|secret|rainbow|gold/.test(r)) return 'sr';
@@ -250,5 +255,5 @@ export function imageUrls(card) {
 }
 
 export function cardmarketUrl(card) {
-  return `https://prices.pokemontcg.io/cardmarket/${encodeURIComponent(card.id)}`;
+  return `https://www.cardmarket.com/fr/Pokemon/Products/Search?searchString=${encodeURIComponent(card.name || card.id)}`;
 }
