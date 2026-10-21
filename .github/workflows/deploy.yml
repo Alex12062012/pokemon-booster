@@ -6,15 +6,20 @@ on:
   schedule:
     - cron: '17 4 * * 1' # chaque lundi : cotes rafraîchies
   workflow_dispatch:
+    inputs:
+      refresh:
+        description: 'Rafraîchir les cotes'
+        type: boolean
+        default: true
 
 permissions:
-  contents: read
+  contents: write
   pages: write
   id-token: write
 
 concurrency:
   group: pages
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   build:
@@ -25,10 +30,17 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - name: Récupérer les cartes et les cotes
+      - name: Préparer les cartes et les cotes
         run: node scripts/build-data.mjs
         env:
+          REFRESH: ${{ (github.event_name == 'schedule' || inputs.refresh) && '1' || '0' }}
           POKEMONTCG_API_KEY: ${{ secrets.POKEMONTCG_API_KEY }}
+      - name: Enregistrer les nouvelles cotes dans le dépôt
+        run: |
+          git add -f public/cards.json public/stats.json
+          if git diff --cached --quiet; then echo "Cotes inchangées"; exit 0; fi
+          git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" commit -m "Cotes Cardmarket mises à jour [skip ci]"
+          git push
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:

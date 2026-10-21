@@ -1,7 +1,7 @@
 // Récupère toutes les cartes Pokémon et leurs cotes Cardmarket depuis l'API pokemontcg.io,
 // puis écrit public/cards.json (données du jeu) et public/stats.json (contrôles du calcul de prix).
 // Lancé par Vercel à chaque mise en ligne : un nouveau déploiement rafraîchit les cotes.
-import { mkdir, writeFile } from 'node:fs/promises';
+import { access, mkdir, writeFile } from 'node:fs/promises';
 import {
   ANOMALY_PRICE, MODES, TIER_ORDER, TIERS,
   bankroll, boosterPrice, buildModel, isKnownRarity, shareAtLeast, simulate, tierOf,
@@ -16,7 +16,7 @@ const WORKERS = 3;
 const DEADLINE = Date.now() + 35 * 60 * 1000;
 const FIELDS = 'id,name,number,rarity,images,cardmarket';
 // Nombre de cartes visé : on prend les séries les plus récentes jusqu'à l'atteindre. 0 = toutes les cartes.
-const CARD_LIMIT = Number(process.env.CARD_LIMIT ?? 1000);
+const CARD_LIMIT = Number(process.env.CARD_LIMIT ?? 0);
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const log = (...a) => console.log(...a);
@@ -213,6 +213,17 @@ const eur = (x) => `${x.toFixed(2)} €`;
 
 async function main() {
   const t0 = Date.now();
+  // Les données sont enregistrées dans le dépôt : une mise en ligne normale les réutilise
+  // et prend quelques secondes. Seul le rafraîchissement (REFRESH=1) interroge l'API.
+  if (process.env.REFRESH !== '1') {
+    try {
+      await access('public/cards.json');
+      log('Données déjà présentes dans le dépôt : pas de téléchargement (REFRESH=1 pour rafraîchir les cotes).');
+      return;
+    } catch {
+      log('Pas encore de données dans le dépôt : téléchargement complet.');
+    }
+  }
   log(KEY ? 'Clé API présente' : 'Pas de clé API : débit limité à 30 requêtes par minute');
 
   const allSets = await fetchSets();
