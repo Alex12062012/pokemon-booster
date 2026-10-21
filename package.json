@@ -1,0 +1,12 @@
+{
+  "name": "bourse-aux-boosters",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Ouvre des boosters de cartes Pokémon virtuels avec leurs vraies cotes Cardmarket.",
+  "scripts": {
+    "build": "node scripts/build-data.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
