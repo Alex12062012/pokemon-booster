@@ -63,12 +63,22 @@ const cardsUrl = (page, size = PAGE, q = '') =>
 
 const setOf = (id) => id.slice(0, id.indexOf('-'));
 
+// Copie publique de la liste des séries, utilisée si l'API ne répond pas.
+const SETS_MIRROR = 'https://raw.githubusercontent.com/PokemonTCG/pokemon-tcg-data/master/sets/en.json';
+
 async function fetchSets() {
-  const sets = [];
-  for (let page = 1; ; page++) {
-    const r = await getJSON(`${API}/sets?page=${page}&pageSize=250`);
-    sets.push(...r.data);
-    if (page * 250 >= r.totalCount) break;
+  let sets = [];
+  try {
+    for (let page = 1; ; page++) {
+      const r = await getJSON(`${API}/sets?page=${page}&pageSize=250`, 3);
+      sets.push(...r.data);
+      if (page * 250 >= r.totalCount) break;
+    }
+  } catch (e) {
+    log(`Liste des séries indisponible sur l'API (${e.message}), utilisation de la copie GitHub`);
+    const res = await fetch(SETS_MIRROR);
+    if (!res.ok) throw new Error(`copie des séries : HTTP ${res.status}`);
+    sets = await res.json();
   }
   sets.sort((a, b) => (a.releaseDate || '').localeCompare(b.releaseDate || '') || a.id.localeCompare(b.id));
   return sets;
