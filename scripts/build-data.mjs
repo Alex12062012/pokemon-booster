@@ -234,14 +234,12 @@ async function main() {
     // Simple pagination (la recherche par série de l'API est peu fiable) : les premières pages suffisent.
     byId = new Map();
     failed = [];
-    // L'API renvoie les cartes de la plus ancienne série à la plus récente : on prend les dernières pages.
-    const head = await getJSON(`${API}/cards?page=1&pageSize=1&select=id`);
-    const last = Math.ceil(head.totalCount / PAGE);
+    // Les pages profondes de l'API échouent : on trie par date de sortie décroissante et on prend le début.
     const pages = Math.ceil(CARD_LIMIT / PAGE);
-    log(`Limite de ${CARD_LIMIT} cartes : les ${pages} dernières pages sur ${last} (séries les plus récentes)`);
-    for (let p = Math.max(1, last - pages + 1); p <= last; p++) {
+    log(`Limite de ${CARD_LIMIT} cartes : ${pages} pages, des séries les plus récentes`);
+    for (let p = 1; p <= pages; p++) {
       try {
-        const r = await getJSON(cardsUrl(p));
+        const r = await getJSON(`${cardsUrl(p)}&orderBy=-set.releaseDate`);
         for (const c of r.data) byId.set(c.id, c);
         total = r.totalCount;
       } catch (e) {
