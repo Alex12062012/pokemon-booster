@@ -16,7 +16,7 @@ const WORKERS = 3;
 const DEADLINE = Date.now() + 35 * 60 * 1000;
 const FIELDS = 'id,name,number,rarity,images,cardmarket';
 // Nombre de cartes visé : on prend les séries les plus récentes jusqu'à l'atteindre. 0 = toutes les cartes.
-const CARD_LIMIT = Number(process.env.CARD_LIMIT ?? 0);
+const CARD_LIMIT = Number(process.env.CARD_LIMIT ?? 1000);
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const log = (...a) => console.log(...a);
@@ -231,8 +231,23 @@ async function main() {
 
   let byId, total, failed, added = 0, sets = allSets;
   if (CARD_LIMIT > 0) {
-    ({ byId, total, failed, chosen: sets } = await fetchRecentSets(allSets));
-    sets = [...sets].reverse();
+    // Simple pagination (la recherche par série de l'API est peu fiable) : les premières pages suffisent.
+    byId = new Map();
+    failed = [];
+    const pages = Math.ceil(CARD_LIMIT / PAGE);
+    log(`Limite de ${CARD_LIMIT} cartes : ${pages} pages`);
+    for (let p = 1; p <= pages; p++) {
+      try {
+        const r = await getJSON(cardsUrl(p));
+        for (const c of r.data) byId.set(c.id, c);
+        total = r.totalCount;
+      } catch (e) {
+        failed.push(p);
+        log(`  page ${p} abandonnée (${e.message})`);
+      }
+    }
+    const used = new Set([...byId.keys()].map(setOf));
+    sets = allSets.filter((s) => used.has(s.id));
   } else {
     ({ byId, total, failed } = await fetchAllCards());
     added = await fillMissing(byId, sets);
