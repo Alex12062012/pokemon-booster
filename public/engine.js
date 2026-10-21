@@ -88,7 +88,7 @@ export function buildModel(data) {
   for (const [id, si, name, ri, price, rev, img] of data.cards) {
     const rarity = data.rarities[ri] ?? null;
     const tier = tierOf(rarity);
-    if (!tier || !(price > 0)) continue;
+    if (!tier || !(price > 0) || !img || img === '!|') continue; // pas de cote ou pas de photo
     const card = { id, set: sets[si] || null, name, rarity, tier, price, rev: rev > 0 ? rev : 0, img };
     cards.push(card);
     byId.set(id, card);
