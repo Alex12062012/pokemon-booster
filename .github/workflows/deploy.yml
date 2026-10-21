@@ -37,7 +37,7 @@ jobs:
           POKEMONTCG_API_KEY: ${{ secrets.POKEMONTCG_API_KEY }}
       - name: Enregistrer les nouvelles cotes dans le dépôt
         run: |
-          git add -f public/cards.json public/stats.json
+          git add -f public/cards.json; [ -f public/stats.json ] && git add -f public/stats.json
           if git diff --cached --quiet; then echo "Cotes inchangées"; exit 0; fi
           git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" commit -m "Cotes Cardmarket mises à jour [skip ci]"
           git push
