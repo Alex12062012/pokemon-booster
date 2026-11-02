@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-10-26T10:11:23.898Z",
+  "generatedAt": "2026-11-02T12:29:18.601Z",
   "pricesUpdated": {
-    "min": "2026/10/25",
-    "max": "2026/10/25",
-    "main": "2026/10/25"
+    "min": "2026/11/01",
+    "max": "2026/11/01",
+    "main": "2026/11/01"
   },
   "counts": {
     "api": 20670,
@@ -12,7 +12,7 @@
     "noPrice": 188,
     "noRarity": 0,
     "anomalies": 0,
-    "lostPages": 3
+    "lostPages": 0
   },
   "tiers": {
     "c": {
@@ -33,11 +33,11 @@
     },
     "ur": {
       "n": 78,
-      "mean": 1.02
+      "mean": 1.04
     },
     "fa": {
       "n": 171,
-      "mean": 4.53
+      "mean": 4.4
     },
     "sr": {
       "n": 0,
@@ -45,62 +45,62 @@
     },
     "sir": {
       "n": 42,
-      "mean": 52.8
+      "mean": 50.77
     },
     "jp": {
       "n": 9,
-      "mean": 486.43
+      "mean": 469.15
     },
     "rev": {
       "n": 352,
       "mean": 0.13
     }
   },
-  "evWithoutJackpot": 3.08,
-  "jackpotEV": 1.95,
+  "evWithoutJackpot": 3,
+  "jackpotEV": 1.88,
   "simulatedPack": {
-    "mean": 5.03,
+    "mean": 5.02,
     "p10": 0.46,
     "median": 0.69,
-    "p90": 4.34,
-    "p99": 91.68,
-    "pVitrine": 0.1849
+    "p90": 4.36,
+    "p99": 82.66,
+    "pVitrine": 0.18656
   },
   "modes": {
     "reel": {
       "ratio": 0.7,
-      "price": 4.4,
-      "realReturn": 1.1423,
-      "returnWithoutJackpot": 0.7001000000000001,
-      "shareProfitablePacks": 0.0984,
+      "price": 4.3,
+      "realReturn": 1.1340000000000001,
+      "returnWithoutJackpot": 0.6976,
+      "shareProfitablePacks": 0.10099999999999999,
       "runs": 2000,
       "maxPacks": 200,
       "pBrokeBy20": 0,
-      "pDoubled": 0.2955,
-      "medianPacks": 50
+      "pDoubled": 0.307,
+      "medianPacks": 52
     },
     "equilibre": {
       "ratio": 1.05,
-      "price": 2.95,
-      "realReturn": 1.7038,
-      "returnWithoutJackpot": 1.0442,
-      "shareProfitablePacks": 0.1449,
+      "price": 2.85,
+      "realReturn": 1.7109,
+      "returnWithoutJackpot": 1.0525,
+      "shareProfitablePacks": 0.1519,
       "runs": 2000,
       "maxPacks": 200,
       "pBrokeBy20": 0,
-      "pDoubled": 0.6335,
+      "pDoubled": 0.657,
       "medianPacks": 200
     },
     "genereux": {
       "ratio": 1.3,
-      "price": 2.35,
-      "realReturn": 2.1388,
-      "returnWithoutJackpot": 1.3108000000000002,
-      "shareProfitablePacks": 0.1729,
+      "price": 2.3,
+      "realReturn": 2.1201,
+      "returnWithoutJackpot": 1.3041999999999998,
+      "shareProfitablePacks": 0.1759,
       "runs": 2000,
       "maxPacks": 200,
       "pBrokeBy20": 0,
-      "pDoubled": 0.826,
+      "pDoubled": 0.835,
       "medianPacks": 200
     }
   },
@@ -109,74 +109,74 @@
       "id": "me02.5-276",
       "name": "Pikachu ex",
       "rarity": "Special illustration rare",
-      "price": 955.92
+      "price": 948.79
     },
     {
       "id": "me02.5-284",
       "name": "Mega Gengar ex",
       "rarity": "Special illustration rare",
-      "price": 890.99
+      "price": 836.5
     },
     {
       "id": "me02-125",
       "name": "Mega Charizard X ex",
       "rarity": "Special illustration rare",
-      "price": 693.47
+      "price": 679.5
     },
     {
       "id": "me02.5-290",
       "name": "Mega Dragonite ex",
       "rarity": "Special illustration rare",
-      "price": 408.46
+      "price": 409.15
     },
     {
       "id": "me02.5-294",
       "name": "Mega Charizard Y ex",
       "rarity": "Mega Hyper Rare",
-      "price": 405.27
+      "price": 354.77
     },
     {
       "id": "me02.5-277",
       "name": "Pikachu ex",
       "rarity": "Special illustration rare",
-      "price": 309.06
-    },
-    {
-      "id": "me02-130",
-      "name": "Mega Charizard X ex",
-      "rarity": "Mega Hyper Rare",
-      "price": 250.85
+      "price": 295.73
     },
     {
       "id": "me02.5-281",
       "name": "Team Rocket's Mewtwo ex",
       "rarity": "Special illustration rare",
-      "price": 247.19
+      "price": 249.14
+    },
+    {
+      "id": "me02-130",
+      "name": "Mega Charizard X ex",
+      "rarity": "Mega Hyper Rare",
+      "price": 236.28
     },
     {
       "id": "me02.5-295",
       "name": "Mega Dragonite ex",
       "rarity": "Mega Hyper Rare",
-      "price": 216.66
+      "price": 212.48
     },
     {
       "id": "me05-116",
       "name": "Mega Darkrai ex",
       "rarity": "Special illustration rare",
-      "price": 189.69
+      "price": 183.96
     },
     {
       "id": "me02.5-280",
       "name": "Lillie's Clefairy ex",
       "rarity": "Special illustration rare",
-      "price": 148.11
+      "price": 134.35
     },
     {
-      "id": "me04-116",
-      "name": "Mega Greninja ex",
-      "rarity": "Special illustration rare",
-      "price": 136.96
+      "id": "me05-120",
+      "name": "Mega Darkrai ex",
+      "rarity": "Mega Hyper Rare",
+      "price": 132.32
     }
   ],
-  "durationSeconds": 65
+  "durationSeconds": 54
 }
